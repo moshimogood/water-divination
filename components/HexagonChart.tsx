@@ -1,4 +1,5 @@
 import questionsData from "@/data/nen-shindan-questions.json";
+import { hexagonUnitVector } from "@/lib/hexagonGeometry";
 import type { NenSystem } from "@/lib/types";
 
 const { scoring, systems } = questionsData;
@@ -16,9 +17,8 @@ interface HexagonChartProps {
 }
 
 function vertex(center: number, radius: number, index: number): [number, number] {
-  // Start at the top, go clockwise. 6 axes -> 60 degrees apart.
-  const angle = (Math.PI / 180) * (index * 60 - 90);
-  return [center + radius * Math.cos(angle), center + radius * Math.sin(angle)];
+  const { x, y } = hexagonUnitVector(index, hexagonOrder.length);
+  return [center + radius * x, center + radius * y];
 }
 
 function polygonPoints(center: number, radii: number[]): string {
@@ -47,7 +47,7 @@ export function HexagonChart({ series, size = 320 }: HexagonChartProps) {
           points={polygonPoints(center, hexagonOrder.map(() => maxRadius * fraction))}
           fill="none"
           stroke="currentColor"
-          strokeOpacity={0.18}
+          strokeOpacity={0.35}
         />
       ))}
       {/* axes */}
@@ -61,7 +61,7 @@ export function HexagonChart({ series, size = 320 }: HexagonChartProps) {
             x2={x}
             y2={y}
             stroke="currentColor"
-            strokeOpacity={0.18}
+            strokeOpacity={0.35}
           />
         );
       })}
@@ -75,9 +75,9 @@ export function HexagonChart({ series, size = 320 }: HexagonChartProps) {
             hexagonOrder.map((system) => (Math.max(0, Math.min(100, s.values[system])) / 100) * maxRadius)
           )}
           fill={s.color}
-          fillOpacity={0.22}
+          fillOpacity={0.18}
           stroke={s.color}
-          strokeWidth={2}
+          strokeWidth={2.5}
         />
       ))}
       {/* labels */}

@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
+import { M_PLUS_Rounded_1c } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+
+const mplusRounded = M_PLUS_Rounded_1c({
+  weight: ["400", "700", "800"],
+  subsets: ["latin"],
+  variable: "--font-mplus-rounded",
+  display: "swap",
+});
 
 // Prefer the stable production domain: VERCEL_URL is the per-deployment URL,
 // which Vercel Deployment Protection can hide from OGP crawlers.
@@ -21,17 +29,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={mplusRounded.variable}>
       <body className="antialiased min-h-screen flex flex-col">
-        <header className="border-b border-slate-800">
+        <header className="border-b-2 border-ink/10 bg-white/80 backdrop-blur">
           <div className="mx-auto max-w-3xl px-4 py-4">
-            <Link href="/" className="text-lg font-bold tracking-wide text-sky-300">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-lg font-extrabold tracking-wide text-hunter-700"
+            >
               💧 水見式 念能力診断
             </Link>
           </div>
         </header>
         <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">{children}</main>
-        <footer className="border-t border-slate-800 text-xs text-slate-500">
+        <footer className="border-t-2 border-ink/10 bg-white text-xs text-ink-muted">
           <div className="mx-auto max-w-3xl px-4 py-6 space-y-1">
             <p>
               本アプリは非公式のファンメイド作品であり、原作・出版社・作者とは一切関係ありません。

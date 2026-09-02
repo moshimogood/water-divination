@@ -3,6 +3,7 @@ import questionsData from "@/data/nen-shindan-questions.json";
 import { decodeResult } from "@/lib/resultUrl";
 import { decodeTeam } from "@/lib/team";
 import { MEMBER_PALETTE } from "@/lib/memberPalette";
+import { hexagonUnitVector } from "@/lib/hexagonGeometry";
 import type { NenSystem } from "@/lib/types";
 
 export const runtime = "edge";
@@ -34,8 +35,8 @@ async function loadJapaneseFont(text: string): Promise<ArrayBuffer | null> {
 function hexPoints(cx: number, cy: number, radii: number[]): string {
   return radii
     .map((radius, i) => {
-      const angle = (Math.PI / 180) * (i * 60 - 90);
-      return `${(cx + radius * Math.cos(angle)).toFixed(1)},${(cy + radius * Math.sin(angle)).toFixed(1)}`;
+      const { x, y } = hexagonUnitVector(i, radii.length);
+      return `${(cx + radius * x).toFixed(1)},${(cy + radius * y).toFixed(1)}`;
     })
     .join(" ");
 }
@@ -59,7 +60,7 @@ function HexagonChartBlock({
             key={fraction}
             points={hexPoints(center, center, hexagonOrder.map(() => maxRadius * fraction))}
             fill="none"
-            stroke="#334155"
+            stroke="#c9bea0"
             strokeWidth={2}
           />
         ))}
@@ -81,9 +82,9 @@ function HexagonChartBlock({
         ))}
       </svg>
       {hexagonOrder.map((system, i) => {
-        const angle = (Math.PI / 180) * (i * 60 - 90);
-        const x = center + labelRadius * Math.cos(angle);
-        const y = center + labelRadius * Math.sin(angle);
+        const dir = hexagonUnitVector(i, hexagonOrder.length);
+        const x = center + labelRadius * dir.x;
+        const y = center + labelRadius * dir.y;
         return (
           <div
             key={system}
@@ -133,9 +134,9 @@ export async function GET(request: Request) {
           size={420}
         />
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ fontSize: 36, color: "#94a3b8" }}>私の念系統は</div>
+          <div style={{ fontSize: 36, color: "#756b58" }}>私の念系統は</div>
           <div style={{ fontSize: 96, color: main.color }}>{main.name}</div>
-          <div style={{ display: "flex", fontSize: 32, color: "#94a3b8" }}>
+          <div style={{ display: "flex", fontSize: 32, color: "#756b58" }}>
             <span>第2系統：</span>
             <span style={{ color: second.color }}>{second.name}</span>
           </div>
@@ -155,9 +156,9 @@ export async function GET(request: Request) {
           size={420}
         />
         <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 560 }}>
-          <div style={{ fontSize: 56, color: "#e2e8f0" }}>チームの念能力マッピング</div>
-          <div style={{ fontSize: 40, color: "#38bdf8" }}>{`${team.members.length}人のメンバー`}</div>
-          <div style={{ fontSize: 28, color: "#94a3b8" }}>{names}</div>
+          <div style={{ fontSize: 56, color: "#241d15" }}>チームの念能力マッピング</div>
+          <div style={{ fontSize: 40, color: "#059669" }}>{`${team.members.length}人のメンバー`}</div>
+          <div style={{ fontSize: 28, color: "#756b58" }}>{names}</div>
         </div>
       </div>
     );
@@ -165,8 +166,8 @@ export async function GET(request: Request) {
     textForFont = `${APP_NAME}あなたの念系統を診断しよう`;
     content = (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
-        <div style={{ fontSize: 88, color: "#7dd3fc" }}>{APP_NAME}</div>
-        <div style={{ fontSize: 40, color: "#94a3b8" }}>あなたの念系統を診断しよう</div>
+        <div style={{ fontSize: 88, color: "#059669" }}>{APP_NAME}</div>
+        <div style={{ fontSize: 40, color: "#756b58" }}>あなたの念系統を診断しよう</div>
       </div>
     );
   }
@@ -183,7 +184,7 @@ export async function GET(request: Request) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundImage: "linear-gradient(135deg, #0b1120 0%, #0f2540 100%)",
+          backgroundImage: "linear-gradient(135deg, #fdfbf5 0%, #ecfdf5 100%)",
           fontFamily: fontData ? "NotoSansJP" : "sans-serif",
         }}
       >
@@ -193,7 +194,7 @@ export async function GET(request: Request) {
             position: "absolute",
             bottom: 32,
             fontSize: 28,
-            color: "#475569",
+            color: "#a89f8a",
             display: "flex",
           }}
         >

@@ -44,21 +44,21 @@ export function Quiz({ teamParam }: { teamParam: string | null }) {
   return (
     <div className="mx-auto max-w-xl space-y-8">
       <div>
-        <div className="flex justify-between text-sm text-slate-400">
+        <div className="flex justify-between text-sm font-bold text-ink-muted">
           <span>
             質問 {index + 1} / {questions.length}
           </span>
           <span>{progress}%</span>
         </div>
-        <div className="mt-2 h-2 rounded-full bg-slate-800">
+        <div className="mt-2 h-3 rounded-full border-2 border-ink/10 bg-white">
           <div
-            className="h-2 rounded-full bg-sky-500 transition-all"
+            className="h-full rounded-full bg-hunter-600 transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <h1 className="min-h-20 text-xl font-bold leading-relaxed text-slate-100">
+      <h1 className="min-h-20 text-xl font-extrabold leading-relaxed text-ink">
         {question.text}
       </h1>
 
@@ -67,10 +67,10 @@ export function Quiz({ teamParam }: { teamParam: string | null }) {
           <button
             key={value}
             onClick={() => answer(value)}
-            className={`w-full rounded-lg border px-4 py-3 text-left transition ${
+            className={`w-full rounded-xl border-2 px-4 py-3 text-left font-bold transition ${
               answers[question.id] === value
-                ? "border-sky-400 bg-sky-950"
-                : "border-slate-700 bg-slate-900/60 hover:border-sky-600"
+                ? "border-hunter-600 bg-hunter-50 text-hunter-700"
+                : "border-ink/10 bg-surface text-ink hover:border-hunter-600/50"
             }`}
           >
             {likert.labels[value - likert.min]}
@@ -82,7 +82,7 @@ export function Quiz({ teamParam }: { teamParam: string | null }) {
         <button
           onClick={() => setIndex(Math.max(0, index - 1))}
           disabled={index === 0}
-          className="text-slate-400 underline disabled:invisible"
+          className="font-bold text-ink-muted underline disabled:invisible"
         >
           ← 前の質問へ
         </button>
