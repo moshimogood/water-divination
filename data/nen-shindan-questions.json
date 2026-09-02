@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "likert": {
+    "min": 1,
+    "max": 5,
+    "labels": [
+      "まったく当てはまらない",
+      "あまり当てはまらない",
+      "どちらともいえない",
+      "やや当てはまる",
+      "とても当てはまる"
+    ]
+  },
+  "scoring": {
+    "primaryWeight": 1.0,
+    "adjacentWeight": 0.3,
+    "specializationRangeThreshold": 15,
+    "hexagonOrder": [
+      "enhancement",
+      "transmutation",
+      "conjuration",
+      "specialization",
+      "manipulation",
+      "emission"
+    ],
+    "adjacency": {
+      "enhancement": ["transmutation", "emission"],
+      "transmutation": ["enhancement", "conjuration"],
+      "conjuration": ["transmutation"],
+      "manipulation": ["emission"],
+      "emission": ["enhancement", "manipulation"]
+    },
+    "compatibility": {
+      "adjacent": 80,
+      "twoApart": 60,
+      "opposite": 40
+    }
+  },
+  "systems": {
+    "enhancement": {
+      "name": "強化系",
+      "shortName": "強化",
+      "color": "#ef4444",
+      "description": "持ち前のパワーとひたむきさで物事を押し進めるタイプ。裏表がなく、決めた道を真っすぐ突き進む努力家。単純明快な解決策を好み、仲間思いな一面も。"
+    },
+    "transmutation": {
+      "name": "変化系",
+      "shortName": "変化",
+      "color": "#06b6d4",
+      "description": "柔らかい発想と独創性が持ち味。気まぐれで二面性があるが、それこそが唯一無二の魅力。型にはまらない自由なスタイルで周囲を驚かせる。"
+    },
+    "emission": {
+      "name": "放出系",
+      "shortName": "放出",
+      "color": "#f59e0b",
+      "description": "抜群の行動力と切り替えの早さが武器。細かいことにこだわらず、勢いとエネルギーで場を動かすムードメーカー。感情表現もストレート。"
+    },
+    "conjuration": {
+      "name": "具現化系",
+      "shortName": "具現化",
+      "color": "#10b981",
+      "description": "緻密さと集中力に優れた職人肌。頭の中のイメージを細部まで形にする力に長け、計画性とこだわりの強さは随一。ルールと秩序を重んじる。"
+    },
+    "manipulation": {
+      "name": "操作系",
+      "shortName": "操作",
+      "color": "#8b5cf6",
+      "description": "論理的で自分のペースを決して崩さない頭脳派。全体を見渡して人や物事を思い通りに動かすのが得意。議論や駆け引きで真価を発揮する。"
+    },
+    "specialization": {
+      "name": "特質系",
+      "shortName": "特質",
+      "color": "#ec4899",
+      "description": "どの型にも収まらない唯一無二の存在。すべての資質をバランスよく備えた者だけがたどり着く、特別な系統。"
+    }
+  },
+  "questions": [
+    { "id": "q01", "system": "enhancement", "text": "難しいことを考えるより、まず体を動かして試したい" },
+    { "id": "q02", "system": "transmutation", "text": "気分が変わりやすく、昨日夢中だったことに今日は飽きていることがある" },
+    { "id": "q03", "system": "emission", "text": "思い立ったらすぐ行動に移さないと気が済まない" },
+    { "id": "q04", "system": "conjuration", "text": "物事は事前にしっかり計画を立ててから進めたい" },
+    { "id": "q05", "system": "manipulation", "text": "物事を自分のペースで進めたい。人に合わせるのは苦手だ" },
+    { "id": "q06", "system": "enhancement", "text": "一度決めた目標は、多少の困難があっても最後までやり抜く" },
+    { "id": "q07", "system": "transmutation", "text": "人と同じやり方ではなく、自分なりのアレンジを加えたくなる" },
+    { "id": "q08", "system": "emission", "text": "細かいことは気にせず、勢いで乗り切ることが多い" },
+    { "id": "q09", "system": "conjuration", "text": "約束やルールを破る人を見ると強いストレスを感じる" },
+    { "id": "q10", "system": "manipulation", "text": "議論では筋道を立てて相手を説得するのが得意だ" },
+    { "id": "q11", "system": "enhancement", "text": "駆け引きよりも正々堂々と正面からぶつかる方が性に合う" },
+    { "id": "q12", "system": "transmutation", "text": "本心を悟られないよう、あえて飄々とふるまうことがある" },
+    { "id": "q13", "system": "emission", "text": "怒りっぽいが、引きずらずにすぐ切り替えられる" },
+    { "id": "q14", "system": "conjuration", "text": "細部の粗が気になり、納得いくまで作り込んでしまう" },
+    { "id": "q15", "system": "manipulation", "text": "グループでは自然とまとめ役や指示を出す側に回る" },
+    { "id": "q16", "system": "enhancement", "text": "細かい理屈よりも、シンプルで分かりやすい答えが好きだ" },
+    { "id": "q17", "system": "transmutation", "text": "流行や新しいものにすぐ飛びつく方だ" },
+    { "id": "q18", "system": "emission", "text": "初対面の人にも物おじせず話しかけられる" },
+    { "id": "q19", "system": "conjuration", "text": "持ち物や身の回りの整理整頓は欠かさない" },
+    { "id": "q20", "system": "manipulation", "text": "一つのことにこだわり始めると、とことん突き詰めたくなる" },
+    { "id": "q21", "system": "enhancement", "text": "仲間のためなら自分が損をしてもかまわないと思う" },
+    { "id": "q22", "system": "transmutation", "text": "型にはまった作業より、自由な発想が求められる場面で力を発揮する" },
+    { "id": "q23", "system": "emission", "text": "じっくり準備するより、まず現場に飛び込んでから考える" },
+    { "id": "q24", "system": "conjuration", "text": "頭の中でイメージを細部まで具体的に思い描くのが得意だ" },
+    { "id": "q25", "system": "manipulation", "text": "感情よりも理屈やデータで判断する方だ" },
+    { "id": "q26", "system": "enhancement", "text": "努力や反復練習を続けるのは苦にならない" },
+    { "id": "q27", "system": "transmutation", "text": "周囲から「つかみどころがない」と言われることがある" },
+    { "id": "q28", "system": "emission", "text": "感情表現がストレートだと言われる" },
+    { "id": "q29", "system": "conjuration", "text": "コツコツと積み上げる緻密な作業が得意だ" },
+    { "id": "q30", "system": "manipulation", "text": "計画通りに人や物事が動くと強い満足感を覚える" }
+  ]
+}
