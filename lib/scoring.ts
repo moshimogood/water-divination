@@ -81,14 +81,31 @@ function scoreRange(scores: Scores): number {
   return Math.max(...values) - Math.min(...values);
 }
 
-/** Specialization is derived, not asked: balanced scores (range <= threshold) qualify. */
-export function judgeSpecialization(scores: Scores): boolean {
-  return scoreRange(scores) <= scoring.specializationRangeThreshold;
+function maxScore(scores: Scores): number {
+  return Math.max(...FIVE_SYSTEMS.map((s) => scores[s]));
 }
 
-/** Visualization-only value: the more balanced the five scores, the higher. */
+/**
+ * Specialization is derived, not asked: it means the five systems don't
+ * clearly fit at all, not merely "balanced". That requires scores to be
+ * both flat (no system stands out - range <= threshold) AND low (not even
+ * the best-matching system is a real resonance - max <= threshold).
+ * A flat-but-high profile ("equally strong at everything") or a
+ * flat-but-neutral one (careless/noncommittal answering, which clusters
+ * around the midpoint) is intentionally excluded.
+ */
+export function judgeSpecialization(scores: Scores): boolean {
+  return (
+    scoreRange(scores) <= scoring.specializationRangeThreshold &&
+    maxScore(scores) <= scoring.specializationMaxScoreThreshold
+  );
+}
+
+/** Visualization-only value: high only when scores are both flat and low. */
 export function specializationScore(scores: Scores): number {
-  return Math.round(Math.max(0, 100 - 2 * scoreRange(scores)) * 10) / 10;
+  const flatness = Math.max(0, 100 - 2 * scoreRange(scores));
+  const lowness = Math.max(0, 100 - maxScore(scores));
+  return Math.round(((flatness * lowness) / 100) * 10) / 10;
 }
 
 function rankSystems(scores: Scores): FiveSystem[] {

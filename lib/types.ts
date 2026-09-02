@@ -18,7 +18,12 @@ export interface DiagnosisResult {
   scores: Scores;
   /** Derived 0-100 score for specialization (visualization only) */
   specializationScore: number;
-  /** True when max-min range of the five scores is within the threshold */
+  /**
+   * True when the five scores are both flat (max-min range within
+   * scoring.specializationRangeThreshold) and low (max score within
+   * scoring.specializationMaxScoreThreshold) — see judgeSpecialization
+   * in lib/scoring.ts.
+   */
   isSpecialization: boolean;
   mainSystem: NenSystem;
   secondSystem: FiveSystem;

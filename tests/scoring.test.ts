@@ -89,21 +89,28 @@ describe("judgeSpecialization", () => {
     manipulation: v,
   });
 
-  it("judges specialization when range <= 10", () => {
-    expect(judgeSpecialization({ ...flat(50), enhancement: 60 })).toBe(true);
-    expect(judgeSpecialization(flat(50))).toBe(true);
+  it("judges specialization when scores are flat AND low (range <= 10, max <= 45)", () => {
+    expect(judgeSpecialization({ ...flat(30), enhancement: 40 })).toBe(true);
+    expect(judgeSpecialization(flat(20))).toBe(true);
   });
 
-  it("does not judge specialization when range > 10", () => {
-    expect(judgeSpecialization({ ...flat(50), enhancement: 60.1 })).toBe(false);
+  it("does not judge specialization when the flat range exceeds 10", () => {
+    expect(judgeSpecialization({ ...flat(30), enhancement: 40.1 })).toBe(false);
+  });
+
+  it("does not judge specialization when flat scores are not low, even if range is 0", () => {
+    // Being equally into all five systems ("likes everything") is not the
+    // same as "doesn't fit any of them" - specialization requires low
+    // absolute engagement, not just balance.
+    expect(judgeSpecialization(flat(50))).toBe(false);
+    expect(judgeSpecialization(flat(100))).toBe(false);
   });
 });
 
-describe("specialization threshold calibration", () => {
+describe("specialization calibration", () => {
   // A realistic, consistent single-system lean (all 6 of one system's
   // questions answered "4" while everything else is neutral "3") must
-  // resolve to that system, not to specialization. This is the case the
-  // old range<=15 threshold got wrong.
+  // resolve to that system, not to specialization.
   it("does not classify a consistent single-system lean as specialization", () => {
     const answers: Answers = {};
     for (const q of questionsData.questions) {
@@ -114,10 +121,28 @@ describe("specialization threshold calibration", () => {
     expect(result.mainSystem).toBe("enhancement");
   });
 
-  // Genuinely uniform answers (no system favored at all) must still
-  // resolve to specialization.
-  it("still classifies fully neutral answers as specialization", () => {
-    expect(computeResult(answersAll(3)).isSpecialization).toBe(true);
+  // Careless / noncommittal answering (hovering around "neutral") must NOT
+  // default to specialization - it's the most common answer pattern and
+  // specialization is supposed to be rare, reserved for people who clearly
+  // don't resonate with any of the five systems.
+  it("does not classify fully neutral answers as specialization", () => {
+    expect(computeResult(answersAll(3)).isSpecialization).toBe(false);
+  });
+
+  // Uniformly agreeing with everything ("balanced, good at all five") is
+  // also not specialization - the flavor is "doesn't fit any of them", not
+  // "fits all of them equally".
+  it("does not classify uniformly high answers as specialization", () => {
+    expect(computeResult(answersAll(4)).isSpecialization).toBe(false);
+    expect(computeResult(answersAll(5)).isSpecialization).toBe(false);
+  });
+
+  // Uniformly disagreeing with everything is the clearest real-world case
+  // of "doesn't fit any of the five systems" and must resolve to
+  // specialization.
+  it("classifies uniformly low (disagreeing) answers as specialization", () => {
+    expect(computeResult(answersAll(1)).isSpecialization).toBe(true);
+    expect(computeResult(answersAll(2)).isSpecialization).toBe(true);
   });
 });
 
@@ -131,8 +156,8 @@ describe("computeResult", () => {
     expect(result.isSpecialization).toBe(false);
   });
 
-  it("derives specialization as main when the five scores are balanced", () => {
-    const result = computeResult(answersAll(4));
+  it("derives specialization as main when the five scores are balanced and low", () => {
+    const result = computeResult(answersAll(1));
     expect(result.isSpecialization).toBe(true);
     expect(result.mainSystem).toBe("specialization");
     // second system is the top of the five directly-scored systems
