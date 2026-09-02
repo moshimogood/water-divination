@@ -43,10 +43,22 @@ export function TeamHexagonMap({ members, size = 360 }: TeamHexagonMapProps) {
   const markerRadius = size * 0.032;
   const minLabelSpacing = size * 0.16;
 
+  // Markers can require large separation when several members share a very
+  // similar (or identical) score profile near a vertex; without a clamp the
+  // push-apart pass can place a marker's circle or name label outside the
+  // SVG viewBox, where it renders over surrounding page content instead of
+  // being clipped. Keep every resolved point, plus room below it for the
+  // name label, inside the canvas.
+  const sideMargin = markerRadius * 2;
+  const bottomMargin = markerRadius + size * 0.035 + size * 0.045;
+
   const rawPositions = members.map((member) =>
     toPixel(center, maxRadius, computeMemberPosition(member.values))
   );
-  const resolvedPositions = resolveLabelPositions(rawPositions, minLabelSpacing);
+  const resolvedPositions = resolveLabelPositions(rawPositions, minLabelSpacing).map((p) => ({
+    x: Math.min(size - sideMargin, Math.max(sideMargin, p.x)),
+    y: Math.min(size - bottomMargin, Math.max(sideMargin, p.y)),
+  }));
 
   return (
     <svg
