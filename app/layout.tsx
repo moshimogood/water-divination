@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 
-const siteUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+// Prefer the stable production domain: VERCEL_URL is the per-deployment URL,
+// which Vercel Deployment Protection can hide from OGP crawlers.
+const vercelDomain =
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL;
+const siteUrl = vercelDomain ? `https://${vercelDomain}` : "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

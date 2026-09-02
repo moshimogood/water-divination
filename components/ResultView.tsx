@@ -8,7 +8,7 @@ import { HexagonChart } from "@/components/HexagonChart";
 import { ShareOnX } from "@/components/ShareOnX";
 import { decodeResult } from "@/lib/resultUrl";
 import { compatibilityTable } from "@/lib/compatibility";
-import { decodeTeam, encodeTeam, upsertMember, validateNickname, TEAM_MAX_MEMBERS, TEAM_DATA_VERSION } from "@/lib/team";
+import { decodeTeam, encodeTeam, upsertMember, validateNickname, NICKNAME_MAX_LENGTH, TEAM_MAX_MEMBERS, TEAM_DATA_VERSION } from "@/lib/team";
 import { getOrCreateClientId } from "@/lib/clientId";
 import type { NenSystem } from "@/lib/types";
 
@@ -148,8 +148,8 @@ export function ResultView({
                 setNickname(e.target.value);
                 setError(null);
               }}
-              placeholder="ニックネーム（必須・15文字以内）"
-              maxLength={30}
+              placeholder={`ニックネーム（必須・${NICKNAME_MAX_LENGTH}文字以内）`}
+              maxLength={NICKNAME_MAX_LENGTH}
               className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-100 placeholder:text-slate-600"
             />
             <button

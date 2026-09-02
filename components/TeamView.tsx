@@ -8,22 +8,10 @@ import { HexagonChart, type HexagonSeries } from "@/components/HexagonChart";
 import { ShareOnX } from "@/components/ShareOnX";
 import { decodeTeam, encodeTeam, removeMember } from "@/lib/team";
 import { getOrCreateClientId } from "@/lib/clientId";
+import { MEMBER_PALETTE } from "@/lib/memberPalette";
 import type { NenSystem, TeamMember } from "@/lib/types";
 
 const { systems } = questionsData;
-
-const MEMBER_PALETTE = [
-  "#38bdf8",
-  "#f472b6",
-  "#4ade80",
-  "#facc15",
-  "#a78bfa",
-  "#fb923c",
-  "#2dd4bf",
-  "#f87171",
-  "#93c5fd",
-  "#d9f99d",
-];
 
 function memberValues(member: TeamMember): Record<NenSystem, number> {
   return { ...member.scores, specialization: member.specializationScore };

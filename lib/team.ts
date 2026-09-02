@@ -1,5 +1,5 @@
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from "lz-string";
-import { FIVE_SYSTEMS, type Team, type TeamMember } from "@/lib/types";
+import { FIVE_SYSTEMS, type FiveSystem, type Team, type TeamMember } from "@/lib/types";
 
 export const TEAM_MAX_MEMBERS = 10;
 export const NICKNAME_MAX_LENGTH = 15;
@@ -22,10 +22,15 @@ function isValidMember(member: unknown): member is TeamMember {
   if (typeof member !== "object" || member === null) return false;
   const m = member as Record<string, unknown>;
   if (typeof m.clientId !== "string" || m.clientId.length === 0) return false;
-  if (typeof m.nickname !== "string") return false;
+  if (typeof m.nickname !== "string" || validateNickname(m.nickname) !== null) return false;
   if (typeof m.scores !== "object" || m.scores === null) return false;
+  if (!Number.isFinite(m.specializationScore)) return false;
+  const isFiveSystem = (v: unknown): v is FiveSystem =>
+    typeof v === "string" && FIVE_SYSTEMS.includes(v as FiveSystem);
+  if (m.mainSystem !== "specialization" && !isFiveSystem(m.mainSystem)) return false;
+  if (!isFiveSystem(m.secondSystem)) return false;
   const scores = m.scores as Record<string, unknown>;
-  return FIVE_SYSTEMS.every((s) => typeof scores[s] === "number");
+  return FIVE_SYSTEMS.every((s) => Number.isFinite(scores[s]));
 }
 
 export function decodeTeam(encoded: string): Team | null {
@@ -37,6 +42,7 @@ export function decodeTeam(encoded: string): Team | null {
     if (typeof parsed !== "object" || parsed === null) return null;
     const team = parsed as Record<string, unknown>;
     if (typeof team.v !== "number" || !Array.isArray(team.members)) return null;
+    if (team.members.length > TEAM_MAX_MEMBERS) return null;
     if (!team.members.every(isValidMember)) return null;
     return { v: team.v, members: team.members };
   } catch {

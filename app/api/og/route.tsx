@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import questionsData from "@/data/nen-shindan-questions.json";
 import { decodeResult } from "@/lib/resultUrl";
 import { decodeTeam } from "@/lib/team";
+import { MEMBER_PALETTE } from "@/lib/memberPalette";
 import type { NenSystem } from "@/lib/types";
 
 export const runtime = "edge";
@@ -105,19 +106,6 @@ function HexagonChartBlock({
   );
 }
 
-const TEAM_PALETTE = [
-  "#38bdf8",
-  "#f472b6",
-  "#4ade80",
-  "#facc15",
-  "#a78bfa",
-  "#fb923c",
-  "#2dd4bf",
-  "#f87171",
-  "#93c5fd",
-  "#d9f99d",
-];
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const r = searchParams.get("r");
@@ -161,7 +149,7 @@ export async function GET(request: Request) {
       <div style={{ display: "flex", alignItems: "center", gap: 60 }}>
         <HexagonChartBlock
           seriesList={team.members.map((m, i) => ({
-            color: TEAM_PALETTE[i % TEAM_PALETTE.length],
+            color: MEMBER_PALETTE[i % MEMBER_PALETTE.length],
             values: { ...m.scores, specialization: m.specializationScore },
           }))}
           size={420}

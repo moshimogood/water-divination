@@ -33,8 +33,8 @@ export function decodeResult(encoded: string): DiagnosisResult | null {
     const c = parsed as Record<string, unknown>;
     if (c.v !== RESULT_VERSION) return null;
     if (!Array.isArray(c.s) || c.s.length !== FIVE_SYSTEMS.length) return null;
-    if (!c.s.every((n) => typeof n === "number")) return null;
-    if (typeof c.sp !== "number") return null;
+    if (!c.s.every((n) => Number.isFinite(n))) return null;
+    if (typeof c.sp !== "number" || !Number.isFinite(c.sp)) return null;
     if (typeof c.main !== "string" || typeof c.second !== "string") return null;
     const isSpecialization = c.main === "specialization";
     if (!isSpecialization && !FIVE_SYSTEMS.includes(c.main as FiveSystem)) return null;

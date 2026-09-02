@@ -64,8 +64,11 @@ function maxRawScores(): Scores {
   return max;
 }
 
+/** Question data is static, so the normalization denominators are too. */
+const MAX_RAW_SCORES = maxRawScores();
+
 export function normalizeScores(raw: Scores): Scores {
-  const max = maxRawScores();
+  const max = MAX_RAW_SCORES;
   const scores = emptyScores();
   for (const system of FIVE_SYSTEMS) {
     scores[system] = Math.round((raw[system] / max[system]) * 1000) / 10;
