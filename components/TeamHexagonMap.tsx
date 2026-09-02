@@ -62,7 +62,7 @@ export function TeamHexagonMap({ members, size = 360 }: TeamHexagonMapProps) {
           points={polygonPoints(center, hexagonOrder.map(() => maxRadius * fraction))}
           fill="none"
           stroke="currentColor"
-          strokeOpacity={0.15}
+          strokeOpacity={0.35}
         />
       ))}
       {hexagonOrder.map((system, i) => {
@@ -75,7 +75,7 @@ export function TeamHexagonMap({ members, size = 360 }: TeamHexagonMapProps) {
             x2={x}
             y2={y}
             stroke="currentColor"
-            strokeOpacity={0.15}
+            strokeOpacity={0.35}
           />
         );
       })}
@@ -129,6 +129,9 @@ export function TeamHexagonMap({ members, size = 360 }: TeamHexagonMapProps) {
               fontSize={size * 0.034}
               fontWeight={700}
               fill={member.color}
+              stroke="white"
+              strokeWidth={4}
+              paintOrder="stroke"
             >
               {member.label}
             </text>

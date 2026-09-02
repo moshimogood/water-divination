@@ -47,7 +47,7 @@ export function HexagonChart({ series, size = 320 }: HexagonChartProps) {
           points={polygonPoints(center, hexagonOrder.map(() => maxRadius * fraction))}
           fill="none"
           stroke="currentColor"
-          strokeOpacity={0.18}
+          strokeOpacity={0.35}
         />
       ))}
       {/* axes */}
@@ -61,7 +61,7 @@ export function HexagonChart({ series, size = 320 }: HexagonChartProps) {
             x2={x}
             y2={y}
             stroke="currentColor"
-            strokeOpacity={0.18}
+            strokeOpacity={0.35}
           />
         );
       })}
@@ -75,9 +75,9 @@ export function HexagonChart({ series, size = 320 }: HexagonChartProps) {
             hexagonOrder.map((system) => (Math.max(0, Math.min(100, s.values[system])) / 100) * maxRadius)
           )}
           fill={s.color}
-          fillOpacity={0.22}
+          fillOpacity={0.18}
           stroke={s.color}
-          strokeWidth={2}
+          strokeWidth={2.5}
         />
       ))}
       {/* labels */}

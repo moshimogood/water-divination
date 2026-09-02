@@ -45,8 +45,8 @@ export function ResultView({
   if (!result) {
     return (
       <div className="space-y-4 text-center">
-        <p className="text-slate-300">診断結果を読み込めませんでした。</p>
-        <Link href="/quiz" className="text-sky-400 underline">
+        <p className="text-ink-muted">診断結果を読み込めませんでした。</p>
+        <Link href="/quiz" className="font-bold text-hunter-700 underline">
           診断をやり直す
         </Link>
       </div>
@@ -90,54 +90,54 @@ export function ResultView({
   return (
     <div className="space-y-10">
       <section className="text-center space-y-2">
-        <p className="text-slate-400">あなたの念系統は…</p>
+        <p className="font-bold text-ink-muted">あなたの念系統は…</p>
         <h1 className="text-4xl font-extrabold" style={{ color: main.color }}>
           {main.name}
         </h1>
-        <p className="mx-auto max-w-md leading-relaxed text-slate-300">{main.description}</p>
-        <p className="text-sm text-slate-400">
+        <p className="mx-auto max-w-md leading-relaxed text-ink">{main.description}</p>
+        <p className="text-sm font-bold text-ink-muted">
           第2系統：<span style={{ color: second.color }}>{second.name}</span>
         </p>
       </section>
 
-      <section className="flex justify-center text-slate-500">
+      <section className="flex justify-center rounded-2xl border-2 border-ink/10 bg-surface p-4 text-ink-muted shadow-sm">
         <HexagonChart
           series={[{ label: "あなた", color: main.color, values: chartValues }]}
         />
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-bold text-slate-200">系統ごとの相性</h2>
+        <h2 className="font-extrabold text-ink">系統ごとの相性</h2>
         <ul className="grid gap-2 sm:grid-cols-2">
           {Object.entries(compat).map(([system, percent]) => (
             <li
               key={system}
-              className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900/60 px-4 py-2"
+              className="flex items-center justify-between rounded-xl border-2 border-ink/10 bg-surface px-4 py-2 shadow-sm"
             >
-              <span style={{ color: systems[system as NenSystem].color }}>
+              <span className="font-bold" style={{ color: systems[system as NenSystem].color }}>
                 {systems[system as NenSystem].name}
               </span>
-              <span className="font-bold text-slate-100">{percent}%</span>
+              <span className="font-extrabold text-ink">{percent}%</span>
             </li>
           ))}
         </ul>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-ink-muted">
           ※ 相性は主系統からの六角形上の距離で決まる固定値です
         </p>
       </section>
 
-      <section className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-        <h2 className="font-bold text-slate-200">
+      <section className="space-y-4 rounded-2xl border-2 border-ink/10 bg-surface p-5 shadow-sm">
+        <h2 className="font-extrabold text-ink">
           {team ? "チームに自分の結果を追加する" : "チームを作ってみんなで診断"}
         </h2>
         {team && (
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-ink-muted">
             現在のチーム：{team.members.length}人
             {existingMember && "（あなたの結果を上書き更新します）"}
           </p>
         )}
         {teamIsFull ? (
-          <p className="text-sm text-amber-400">
+          <p className="text-sm font-bold text-gold-500">
             チームが上限（{TEAM_MAX_MEMBERS}人）に達しているため追加できません。
           </p>
         ) : (
@@ -150,18 +150,18 @@ export function ResultView({
               }}
               placeholder={`ニックネーム（必須・${NICKNAME_MAX_LENGTH}文字以内）`}
               maxLength={NICKNAME_MAX_LENGTH}
-              className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-slate-100 placeholder:text-slate-600"
+              className="flex-1 rounded-xl border-2 border-ink/10 bg-white px-4 py-2 text-ink placeholder:text-ink-muted/60"
             />
             <button
               onClick={joinOrCreateTeam}
               disabled={!clientId}
-              className="rounded-lg bg-sky-500 px-6 py-2 font-bold text-slate-950 transition hover:bg-sky-400 disabled:opacity-50"
+              className="rounded-full border-2 border-ink bg-hunter-600 px-6 py-2 font-extrabold text-white shadow-[3px_3px_0_var(--ink)] transition hover:bg-hunter-700 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
             >
               {team ? (existingMember ? "結果を更新" : "チームに参加") : "チームを作る"}
             </button>
           </div>
         )}
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm font-bold text-red-600">{error}</p>}
       </section>
 
       <section className="flex flex-wrap items-center justify-center gap-4">
@@ -173,7 +173,7 @@ export function ResultView({
         />
         <Link
           href={teamParam ? `/quiz?t=${encodeURIComponent(teamParam)}` : "/quiz"}
-          className="text-sm text-slate-400 underline"
+          className="text-sm font-bold text-ink-muted underline"
         >
           もう一度診断する
         </Link>
