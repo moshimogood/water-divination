@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 水見式 念能力診断
 
-## Getting Started
+ハンターハンターの水見式（念系統）診断を模した非公式ファンメイドWebアプリ。
+30問の質問に答えると、6つの念系統（強化・変化・放出・具現化・操作・特質）のどのタイプかを診断し、
+チームメンバーの結果を集約した「チームの念能力マッピング」も作れます。
 
-First, run the development server:
+要件定義書: [docs/requirements.md](docs/requirements.md)
+
+## 特徴
+
+- **個人診断**: 5段階リッカート×30問。六角形チャートで系統バランスを可視化
+- **特質系の導出**: 直接出題せず、5系統スコアのバランス（range ≤ 15）から判定
+- **チーム機能（URLチェーン方式）**: サーバー・DB不要。結果を lz-string で圧縮してURLに格納し、
+  「最新URLを開く → 書き換える → 新URLを再共有」で追加・更新・削除を実現
+- **Xシェア**: 個人・チームともに OGP 動的画像（`/api/og`、Edge・ステートレス）付きで共有可能
+
+## 開発
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev    # 開発サーバー
+npm test       # Vitest（TDD）
+npm run lint   # ESLint
+npm run build  # 本番ビルド
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 構成
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `data/nen-shindan-questions.json` — 設問・スコアリング設定
+- `lib/` — 診断ロジック（scoring / compatibility / team / resultUrl / clientId）
+- `components/` — UI（HexagonChart / Quiz / ResultView / TeamView）
+- `app/` — Next.js App Router ページ + OGP 画像 API
+- `tests/` — Vitest テストスイート
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## デプロイ
 
-## Learn More
+Vercel を想定（提供ドメインをそのまま使用）。バックエンド・DBは持ちません。
 
-To learn more about Next.js, take a look at the following resources:
+## 免責
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+本アプリは非公式のファンメイド作品であり、原作・出版社・作者とは一切関係ありません。
+広告・課金要素はなく、個人情報も収集しません。

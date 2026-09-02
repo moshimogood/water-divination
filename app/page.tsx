@@ -1,103 +1,64 @@
-import Image from "next/image";
+import Link from "next/link";
+import questionsData from "@/data/nen-shindan-questions.json";
+import { decodeTeam } from "@/lib/team";
+import type { NenSystem } from "@/lib/types";
 
-export default function Home() {
+const { systems, scoring } = questionsData;
+const hexagonOrder = scoring.hexagonOrder as NenSystem[];
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ t?: string }>;
+}) {
+  const { t } = await searchParams;
+  const team = t ? decodeTeam(t) : null;
+  const quizHref = t ? `/quiz?t=${encodeURIComponent(t)}` : "/quiz";
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="space-y-10">
+      <section className="text-center space-y-4 py-8">
+        <h1 className="text-3xl font-bold text-sky-200">あなたの念系統を診断しよう</h1>
+        <p className="text-slate-400 leading-relaxed">
+          30の質問に答えると、6つの念系統
+          （強化・変化・放出・具現化・操作・特質）のうち
+          あなたがどのタイプかが分かります。
+        </p>
+        {team && (
+          <p className="rounded-lg border border-sky-800 bg-sky-950/50 px-4 py-3 text-sm text-sky-200">
+            チーム（{team.members.length}人）から招待されています。診断するとチームに参加できます。
+          </p>
+        )}
+        <div className="flex flex-col items-center gap-3">
+          <Link
+            href={quizHref}
+            className="inline-block rounded-full bg-sky-500 px-10 py-4 text-lg font-bold text-slate-950 transition hover:bg-sky-400"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            診断をはじめる
+          </Link>
+          {team && (
+            <Link
+              href={`/team?t=${encodeURIComponent(t!)}`}
+              className="text-sm text-sky-400 underline"
+            >
+              先にチームの結果を見る
+            </Link>
+          )}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      <section className="grid gap-4 sm:grid-cols-2">
+        {hexagonOrder.map((system) => (
+          <div key={system} className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+            <h2 className="font-bold" style={{ color: systems[system].color }}>
+              {systems[system].name}
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-slate-400">
+              {systems[system].description}
+            </p>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }
