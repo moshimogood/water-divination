@@ -89,13 +89,35 @@ describe("judgeSpecialization", () => {
     manipulation: v,
   });
 
-  it("judges specialization when range <= 15", () => {
-    expect(judgeSpecialization({ ...flat(50), enhancement: 65 })).toBe(true);
+  it("judges specialization when range <= 10", () => {
+    expect(judgeSpecialization({ ...flat(50), enhancement: 60 })).toBe(true);
     expect(judgeSpecialization(flat(50))).toBe(true);
   });
 
-  it("does not judge specialization when range > 15", () => {
-    expect(judgeSpecialization({ ...flat(50), enhancement: 65.1 })).toBe(false);
+  it("does not judge specialization when range > 10", () => {
+    expect(judgeSpecialization({ ...flat(50), enhancement: 60.1 })).toBe(false);
+  });
+});
+
+describe("specialization threshold calibration", () => {
+  // A realistic, consistent single-system lean (all 6 of one system's
+  // questions answered "4" while everything else is neutral "3") must
+  // resolve to that system, not to specialization. This is the case the
+  // old range<=15 threshold got wrong.
+  it("does not classify a consistent single-system lean as specialization", () => {
+    const answers: Answers = {};
+    for (const q of questionsData.questions) {
+      answers[q.id] = q.system === "enhancement" ? 4 : 3;
+    }
+    const result = computeResult(answers);
+    expect(result.isSpecialization).toBe(false);
+    expect(result.mainSystem).toBe("enhancement");
+  });
+
+  // Genuinely uniform answers (no system favored at all) must still
+  // resolve to specialization.
+  it("still classifies fully neutral answers as specialization", () => {
+    expect(computeResult(answersAll(3)).isSpecialization).toBe(true);
   });
 });
 

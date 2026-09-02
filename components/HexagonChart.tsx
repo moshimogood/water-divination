@@ -1,4 +1,5 @@
 import questionsData from "@/data/nen-shindan-questions.json";
+import { hexagonUnitVector } from "@/lib/hexagonGeometry";
 import type { NenSystem } from "@/lib/types";
 
 const { scoring, systems } = questionsData;
@@ -16,9 +17,8 @@ interface HexagonChartProps {
 }
 
 function vertex(center: number, radius: number, index: number): [number, number] {
-  // Start at the top, go clockwise. 6 axes -> 60 degrees apart.
-  const angle = (Math.PI / 180) * (index * 60 - 90);
-  return [center + radius * Math.cos(angle), center + radius * Math.sin(angle)];
+  const { x, y } = hexagonUnitVector(index, hexagonOrder.length);
+  return [center + radius * x, center + radius * y];
 }
 
 function polygonPoints(center: number, radii: number[]): string {

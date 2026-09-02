@@ -3,6 +3,7 @@ import questionsData from "@/data/nen-shindan-questions.json";
 import { decodeResult } from "@/lib/resultUrl";
 import { decodeTeam } from "@/lib/team";
 import { MEMBER_PALETTE } from "@/lib/memberPalette";
+import { hexagonUnitVector } from "@/lib/hexagonGeometry";
 import type { NenSystem } from "@/lib/types";
 
 export const runtime = "edge";
@@ -34,8 +35,8 @@ async function loadJapaneseFont(text: string): Promise<ArrayBuffer | null> {
 function hexPoints(cx: number, cy: number, radii: number[]): string {
   return radii
     .map((radius, i) => {
-      const angle = (Math.PI / 180) * (i * 60 - 90);
-      return `${(cx + radius * Math.cos(angle)).toFixed(1)},${(cy + radius * Math.sin(angle)).toFixed(1)}`;
+      const { x, y } = hexagonUnitVector(i, radii.length);
+      return `${(cx + radius * x).toFixed(1)},${(cy + radius * y).toFixed(1)}`;
     })
     .join(" ");
 }
@@ -81,9 +82,9 @@ function HexagonChartBlock({
         ))}
       </svg>
       {hexagonOrder.map((system, i) => {
-        const angle = (Math.PI / 180) * (i * 60 - 90);
-        const x = center + labelRadius * Math.cos(angle);
-        const y = center + labelRadius * Math.sin(angle);
+        const dir = hexagonUnitVector(i, hexagonOrder.length);
+        const x = center + labelRadius * dir.x;
+        const y = center + labelRadius * dir.y;
         return (
           <div
             key={system}
