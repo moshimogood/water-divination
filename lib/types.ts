@@ -40,6 +40,8 @@ export interface TeamMember {
   nickname: string;
   scores: Scores;
   specializationScore: number;
+  /** Which rule triggered specialization, if mainSystem is "specialization". */
+  specializationPath: SpecializationPath;
   mainSystem: NenSystem;
   secondSystem: FiveSystem;
 }

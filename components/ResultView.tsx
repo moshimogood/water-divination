@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import questionsData from "@/data/nen-shindan-questions.json";
 import { ShareOnX } from "@/components/ShareOnX";
+import { TeamHexagonMap } from "@/components/TeamHexagonMap";
 import { decodeResult } from "@/lib/resultUrl";
 import { decodeTeam, encodeTeam, upsertMember, validateNickname, NICKNAME_MAX_LENGTH, TEAM_MAX_MEMBERS, TEAM_DATA_VERSION } from "@/lib/team";
 import { getOrCreateClientId } from "@/lib/clientId";
@@ -76,6 +77,7 @@ export function ResultView({
         nickname: nickname.trim(),
         scores: result.scores,
         specializationScore: result.specializationScore,
+        specializationPath: result.specializationPath,
         mainSystem: result.mainSystem,
         secondSystem: result.secondSystem,
       });
@@ -96,6 +98,22 @@ export function ResultView({
         <p className="text-sm font-bold text-ink-muted">
           第2系統：<span style={{ color: second.color }}>{second.name}</span>
         </p>
+      </section>
+
+      <section className="flex justify-center rounded-2xl border-2 border-ink/10 bg-surface p-4 shadow-sm">
+        <TeamHexagonMap
+          members={[
+            {
+              id: "me",
+              label: "あなた",
+              color: main.color,
+              mainSystem: result.mainSystem,
+              secondSystem: result.secondSystem,
+              specializationPath: result.specializationPath,
+            },
+          ]}
+          size={320}
+        />
       </section>
 
       <section className="space-y-4 rounded-2xl border-2 border-ink/10 bg-surface p-5 shadow-sm">

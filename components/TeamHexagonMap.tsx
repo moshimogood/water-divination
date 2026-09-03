@@ -1,7 +1,7 @@
 import questionsData from "@/data/nen-shindan-questions.json";
 import { hexagonUnitVector } from "@/lib/hexagonGeometry";
 import { computeMemberPosition, resolveLabelPositions } from "@/lib/hexagonPosition";
-import type { NenSystem } from "@/lib/types";
+import type { FiveSystem, NenSystem, SpecializationPath } from "@/lib/types";
 
 const { scoring, systems } = questionsData;
 const hexagonOrder = scoring.hexagonOrder as NenSystem[];
@@ -10,7 +10,9 @@ export interface TeamMemberPoint {
   id: string;
   label: string;
   color: string;
-  values: Record<NenSystem, number>;
+  mainSystem: NenSystem;
+  secondSystem: FiveSystem;
+  specializationPath: SpecializationPath;
 }
 
 interface TeamHexagonMapProps {
@@ -33,8 +35,9 @@ function polygonPoints(center: number, radii: number[]): string {
 
 /**
  * Plots each team member as a single marker + name (a placeholder for a
- * future avatar image) at the position their score profile projects to on
- * the hexagon, instead of overlaying one filled polygon per member.
+ * future avatar image) at the position their result category projects to
+ * on the hexagon (see lib/hexagonPosition.ts), instead of overlaying one
+ * filled polygon per member.
  */
 export function TeamHexagonMap({ members, size = 360 }: TeamHexagonMapProps) {
   const center = size / 2;
@@ -53,7 +56,11 @@ export function TeamHexagonMap({ members, size = 360 }: TeamHexagonMapProps) {
   const bottomMargin = markerRadius + size * 0.035 + size * 0.045;
 
   const rawPositions = members.map((member) =>
-    toPixel(center, maxRadius, computeMemberPosition(member.values))
+    toPixel(
+      center,
+      maxRadius,
+      computeMemberPosition(member.mainSystem, member.secondSystem, member.specializationPath)
+    )
   );
   const resolvedPositions = resolveLabelPositions(rawPositions, minLabelSpacing).map((p) => ({
     x: Math.min(size - sideMargin, Math.max(sideMargin, p.x)),

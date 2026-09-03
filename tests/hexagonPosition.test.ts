@@ -1,52 +1,39 @@
 import { describe, it, expect } from "vitest";
 import { computeMemberPosition, resolveLabelPositions } from "@/lib/hexagonPosition";
-import type { NenSystem } from "@/lib/types";
-
-function values(overrides: Partial<Record<NenSystem, number>>): Record<NenSystem, number> {
-  return {
-    enhancement: 0,
-    transmutation: 0,
-    emission: 0,
-    conjuration: 0,
-    manipulation: 0,
-    specialization: 0,
-    ...overrides,
-  };
-}
 
 describe("computeMemberPosition", () => {
-  it("places a perfectly balanced profile at the center", () => {
-    const pos = computeMemberPosition(
-      values({
-        enhancement: 50,
-        transmutation: 50,
-        emission: 50,
-        conjuration: 50,
-        manipulation: 50,
-        specialization: 50,
-      })
-    );
-    expect(pos.x).toBeCloseTo(0, 5);
-    expect(pos.y).toBeCloseTo(0, 5);
-  });
-
-  it("places a single dominant system exactly at that system's vertex", () => {
-    const pos = computeMemberPosition(values({ enhancement: 100 }));
+  it("places a normal result exactly at its main system's vertex", () => {
     // enhancement is hexagonOrder[0], the top vertex: (0, -1)
+    const pos = computeMemberPosition("enhancement", "transmutation", null);
     expect(pos.x).toBeCloseTo(0, 5);
     expect(pos.y).toBeCloseTo(-1, 5);
   });
 
-  it("places two equally strong adjacent systems between their vertices", () => {
-    const pos = computeMemberPosition(values({ enhancement: 100, transmutation: 100 }));
-    expect(pos.x).toBeCloseTo(0.433, 2);
-    expect(pos.y).toBeCloseTo(-0.75, 2);
-    expect(Math.hypot(pos.x, pos.y)).toBeLessThan(1);
+  it("places every normal main system at full radius (1), not scaled by score", () => {
+    const pos = computeMemberPosition("manipulation", "emission", null);
+    expect(Math.hypot(pos.x, pos.y)).toBeCloseTo(1, 5);
   });
 
-  it("returns the center for all-zero scores instead of NaN", () => {
-    const pos = computeMemberPosition(values({}));
+  it("places a low-engagement specialization result at the exact center", () => {
+    const pos = computeMemberPosition("specialization", "enhancement", "lowEngagement");
     expect(pos).toEqual({ x: 0, y: 0 });
+  });
+
+  it("places a duality specialization result partway out, toward the second system", () => {
+    // secondSystem is transmutation -> hexagonOrder[1], direction (0.866, -0.5)
+    const pos = computeMemberPosition("specialization", "transmutation", "duality");
+    const dist = Math.hypot(pos.x, pos.y);
+    expect(dist).toBeGreaterThan(0);
+    expect(dist).toBeLessThan(1);
+    // same direction as transmutation's vertex, just at a shorter radius
+    expect(pos.x / dist).toBeCloseTo(0.866, 2);
+    expect(pos.y / dist).toBeCloseTo(-0.5, 2);
+  });
+
+  it("is purely categorical - identical category always gives the identical point", () => {
+    const a = computeMemberPosition("conjuration", "enhancement", null);
+    const b = computeMemberPosition("conjuration", "manipulation", null);
+    expect(a).toEqual(b);
   });
 });
 

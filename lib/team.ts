@@ -18,7 +18,7 @@ export function encodeTeam(team: Team): string {
   return compressToEncodedURIComponent(JSON.stringify(team));
 }
 
-function isValidMember(member: unknown): member is TeamMember {
+function isValidMember(member: unknown): boolean {
   if (typeof member !== "object" || member === null) return false;
   const m = member as Record<string, unknown>;
   if (typeof m.clientId !== "string" || m.clientId.length === 0) return false;
@@ -29,8 +29,36 @@ function isValidMember(member: unknown): member is TeamMember {
     typeof v === "string" && FIVE_SYSTEMS.includes(v as FiveSystem);
   if (m.mainSystem !== "specialization" && !isFiveSystem(m.mainSystem)) return false;
   if (!isFiveSystem(m.secondSystem)) return false;
+  if (
+    m.specializationPath !== undefined &&
+    m.specializationPath !== "lowEngagement" &&
+    m.specializationPath !== "duality" &&
+    m.specializationPath !== null
+  ) {
+    return false;
+  }
   const scores = m.scores as Record<string, unknown>;
   return FIVE_SYSTEMS.every((s) => Number.isFinite(scores[s]));
+}
+
+/**
+ * Fills in specializationPath for members from older shared links that
+ * predate it, defaulting a specialization result to "lowEngagement" (the
+ * only path that existed at the time) so old team links keep working.
+ */
+function normalizeMember(member: Record<string, unknown>): TeamMember {
+  const isSpecialization = member.mainSystem === "specialization";
+  return {
+    clientId: member.clientId as string,
+    nickname: member.nickname as string,
+    scores: member.scores as TeamMember["scores"],
+    specializationScore: member.specializationScore as number,
+    specializationPath: isSpecialization
+      ? ((member.specializationPath as TeamMember["specializationPath"]) ?? "lowEngagement")
+      : null,
+    mainSystem: member.mainSystem as TeamMember["mainSystem"],
+    secondSystem: member.secondSystem as TeamMember["secondSystem"],
+  };
 }
 
 export function decodeTeam(encoded: string): Team | null {
@@ -44,7 +72,8 @@ export function decodeTeam(encoded: string): Team | null {
     if (typeof team.v !== "number" || !Array.isArray(team.members)) return null;
     if (team.members.length > TEAM_MAX_MEMBERS) return null;
     if (!team.members.every(isValidMember)) return null;
-    return { v: team.v, members: team.members };
+    const members = (team.members as Record<string, unknown>[]).map(normalizeMember);
+    return { v: team.v, members };
   } catch {
     return null;
   }
