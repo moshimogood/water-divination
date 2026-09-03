@@ -1,22 +1,21 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { TeamHexagonMap } from "@/components/TeamHexagonMap";
-import type { NenSystem } from "@/lib/types";
-
-const flatValues: Record<NenSystem, number> = {
-  enhancement: 50,
-  transmutation: 50,
-  emission: 50,
-  conjuration: 50,
-  manipulation: 50,
-  specialization: 50,
-};
 
 describe("TeamHexagonMap", () => {
   it("renders the six axis labels", () => {
     render(
       <TeamHexagonMap
-        members={[{ id: "a", label: "ゴン", color: "#f00", values: flatValues }]}
+        members={[
+          {
+            id: "a",
+            label: "ゴン",
+            color: "#f00",
+            mainSystem: "enhancement",
+            secondSystem: "transmutation",
+            specializationPath: null,
+          },
+        ]}
       />
     );
     for (const label of ["強化", "変化", "放出", "具現化", "操作", "特質"]) {
@@ -28,8 +27,22 @@ describe("TeamHexagonMap", () => {
     render(
       <TeamHexagonMap
         members={[
-          { id: "a", label: "ゴン", color: "#f00", values: flatValues },
-          { id: "b", label: "キルア", color: "#0f0", values: flatValues },
+          {
+            id: "a",
+            label: "ゴン",
+            color: "#f00",
+            mainSystem: "enhancement",
+            secondSystem: "transmutation",
+            specializationPath: null,
+          },
+          {
+            id: "b",
+            label: "キルア",
+            color: "#0f0",
+            mainSystem: "emission",
+            secondSystem: "enhancement",
+            specializationPath: null,
+          },
         ]}
       />
     );
@@ -37,12 +50,14 @@ describe("TeamHexagonMap", () => {
     expect(screen.getByText("キルア")).toBeInTheDocument();
   });
 
-  it("keeps every member marker at a distinct position even when scores are identical", () => {
+  it("keeps every member marker at a distinct position even when they share the same category", () => {
     const members = Array.from({ length: 4 }, (_, i) => ({
       id: `m${i}`,
       label: `メンバー${i}`,
       color: "#38f",
-      values: flatValues,
+      mainSystem: "specialization" as const,
+      secondSystem: "enhancement" as const,
+      specializationPath: "lowEngagement" as const,
     }));
     const { container } = render(<TeamHexagonMap members={members} />);
     const markers = container.querySelectorAll("[data-member-marker]");

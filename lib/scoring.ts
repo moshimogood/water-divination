@@ -5,11 +5,31 @@ import {
   type DiagnosisResult,
   type FiveSystem,
   type Scores,
+  type SpecializationPath,
 } from "@/lib/types";
 
 const { likert, scoring, questions } = questionsData;
 
 const adjacency = scoring.adjacency as Record<FiveSystem, FiveSystem[]>;
+const hexagonOrder = scoring.hexagonOrder as string[];
+
+function hexDistance(a: FiveSystem, b: FiveSystem): number {
+  const diff = Math.abs(hexagonOrder.indexOf(a) - hexagonOrder.indexOf(b));
+  return Math.min(diff, hexagonOrder.length - diff);
+}
+
+/**
+ * Pairs of the five directly-scored systems that are NOT direct hexagon
+ * neighbors (distance >= 2: "two apart" or fully opposite). Adjacent pairs
+ * are excluded deliberately: adjacent systems bleed into each other at
+ * weight 0.3, so a near-tie there can be an artifact of that bleed rather
+ * than two independently-earned resonances.
+ */
+const NON_ADJACENT_PAIRS: [FiveSystem, FiveSystem][] = FIVE_SYSTEMS.flatMap((a) =>
+  FIVE_SYSTEMS.filter((b) => a < b && hexDistance(a, b) >= 2).map(
+    (b): [FiveSystem, FiveSystem] => [a, b]
+  )
+);
 
 /** Points contributed by one answer: Likert 1..5 maps to 0..4 so scores span 0-100. */
 function answerToPoints(answer: number): number {
@@ -81,14 +101,8 @@ function scoreRange(scores: Scores): number {
   return Math.max(...values) - Math.min(...values);
 }
 
-/** Specialization is derived, not asked: balanced scores (range <= threshold) qualify. */
-export function judgeSpecialization(scores: Scores): boolean {
-  return scoreRange(scores) <= scoring.specializationRangeThreshold;
-}
-
-/** Visualization-only value: the more balanced the five scores, the higher. */
-export function specializationScore(scores: Scores): number {
-  return Math.round(Math.max(0, 100 - 2 * scoreRange(scores)) * 10) / 10;
+function maxScore(scores: Scores): number {
+  return Math.max(...FIVE_SYSTEMS.map((s) => scores[s]));
 }
 
 function rankSystems(scores: Scores): FiveSystem[] {
@@ -96,14 +110,86 @@ function rankSystems(scores: Scores): FiveSystem[] {
   return [...FIVE_SYSTEMS].sort((a, b) => scores[b] - scores[a]);
 }
 
+/** The top two systems by score, and whether they're non-adjacent on the hexagon. */
+function topTwoNonAdjacent(scores: Scores): { first: FiveSystem; second: FiveSystem; isNonAdjacent: boolean } {
+  const [first, second] = rankSystems(scores);
+  const isNonAdjacent = NON_ADJACENT_PAIRS.some(
+    ([a, b]) => (a === first && b === second) || (a === second && b === first)
+  );
+  return { first, second, isNonAdjacent };
+}
+
+/**
+ * "Doesn't clearly fit any of the five systems" path: scores must be both
+ * flat (no system stands out - range <= threshold) AND low (not even the
+ * best-matching system is a real resonance - max <= threshold). A
+ * flat-but-high profile ("equally strong at everything") or a
+ * flat-but-neutral one (careless/noncommittal answering, which clusters
+ * around the midpoint) is intentionally excluded.
+ */
+export function isLowEngagementSpecialization(scores: Scores): boolean {
+  return (
+    scoreRange(scores) <= scoring.specializationRangeThreshold &&
+    maxScore(scores) <= scoring.specializationMaxScoreThreshold
+  );
+}
+
+/**
+ * "Paradoxical, two-sided" path: the top two systems are non-adjacent on
+ * the hexagon (two apart or fully opposite - each independently earned,
+ * not just adjacency bleed from the other), both clearly resonant (>=
+ * duality min score) and near-tied (gap <= duality max gap) rather than
+ * one dominant and one secondary.
+ */
+export function isDualitySpecialization(scores: Scores): boolean {
+  const { first, second, isNonAdjacent } = topTwoNonAdjacent(scores);
+  const firstScore = scores[first];
+  const secondScore = scores[second];
+  return (
+    isNonAdjacent &&
+    secondScore >= scoring.specializationDualityMinScore &&
+    firstScore - secondScore <= scoring.specializationDualityMaxGap
+  );
+}
+
+/** Which specialization rule applies, if any. Duality takes precedence. */
+export function specializationPathFor(scores: Scores): SpecializationPath {
+  if (isDualitySpecialization(scores)) return "duality";
+  if (isLowEngagementSpecialization(scores)) return "lowEngagement";
+  return null;
+}
+
+/** Convenience boolean form of specializationPathFor, used by tests. */
+export function judgeSpecialization(scores: Scores): boolean {
+  return specializationPathFor(scores) !== null;
+}
+
+/**
+ * Visualization-only value for the hexagon chart's 6th axis: the stronger
+ * of the two paths' signals, so the chart always agrees with the verdict.
+ */
+export function specializationScore(scores: Scores): number {
+  const flatness = Math.max(0, 100 - 2 * scoreRange(scores));
+  const lowness = Math.max(0, 100 - maxScore(scores));
+  const lowEngagementComponent = (flatness * lowness) / 100;
+
+  const { first, second, isNonAdjacent } = topTwoNonAdjacent(scores);
+  const closeness = Math.max(0, 100 - 2 * (scores[first] - scores[second]));
+  const dualityComponent = isNonAdjacent ? (closeness * scores[second]) / 100 : 0;
+
+  return Math.round(Math.max(lowEngagementComponent, dualityComponent) * 10) / 10;
+}
+
 export function computeResult(answers: Answers): DiagnosisResult {
   const scores = normalizeScores(computeRawScores(answers));
   const ranked = rankSystems(scores);
-  const isSpecialization = judgeSpecialization(scores);
+  const specializationPath = specializationPathFor(scores);
+  const isSpecialization = specializationPath !== null;
   return {
     scores,
     specializationScore: specializationScore(scores),
     isSpecialization,
+    specializationPath,
     mainSystem: isSpecialization ? "specialization" : ranked[0],
     secondSystem: isSpecialization ? ranked[0] : ranked[1],
   };

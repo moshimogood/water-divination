@@ -23,6 +23,7 @@ function makeMember(clientId: string, nickname = "テスト"): TeamMember {
       manipulation: 30,
     },
     specializationScore: 10,
+    specializationPath: null,
     mainSystem: "enhancement",
     secondSystem: "transmutation",
   };
@@ -49,6 +50,32 @@ describe("encodeTeam / decodeTeam", () => {
   it("returns null for structurally invalid payloads", () => {
     const bad = compressToEncodedURIComponent(JSON.stringify({ hello: "world" }));
     expect(decodeTeam(bad)).toBeNull();
+  });
+
+  it("round-trips a duality specialization member", () => {
+    const team = upsertMember(emptyTeam, {
+      ...makeMember("d", "ヒソカ"),
+      mainSystem: "specialization",
+      secondSystem: "transmutation",
+      specializationPath: "duality",
+    });
+    expect(decodeTeam(encodeTeam(team))).toEqual(team);
+  });
+
+  it("defaults specializationPath to lowEngagement for older links without it", () => {
+    // Simulate a pre-duality shared link: a specialization member whose
+    // payload has no "specializationPath" key at all.
+    const legacyMember = {
+      clientId: "old",
+      nickname: "レガシー",
+      scores: { enhancement: 20, transmutation: 22, emission: 18, conjuration: 21, manipulation: 19 },
+      specializationScore: 80,
+      mainSystem: "specialization",
+      secondSystem: "enhancement",
+    };
+    const legacy = compressToEncodedURIComponent(JSON.stringify({ v: 1, members: [legacyMember] }));
+    const decoded = decodeTeam(legacy);
+    expect(decoded?.members[0].specializationPath).toBe("lowEngagement");
   });
 });
 

@@ -13,10 +13,6 @@ import type { NenSystem, TeamMember } from "@/lib/types";
 
 const { systems } = questionsData;
 
-function memberValues(member: TeamMember): Record<NenSystem, number> {
-  return { ...member.scores, specialization: member.specializationScore };
-}
-
 export function TeamView({ teamParam }: { teamParam: string | null }) {
   const router = useRouter();
   const team = useMemo(() => (teamParam ? decodeTeam(teamParam) : null), [teamParam]);
@@ -42,7 +38,9 @@ export function TeamView({ teamParam }: { teamParam: string | null }) {
     id: member.clientId,
     label: member.nickname,
     color: MEMBER_PALETTE[i % MEMBER_PALETTE.length],
-    values: memberValues(member),
+    mainSystem: member.mainSystem,
+    secondSystem: member.secondSystem,
+    specializationPath: member.specializationPath,
   }));
 
   const distribution = team.members.reduce<Partial<Record<NenSystem, number>>>(

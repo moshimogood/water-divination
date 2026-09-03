@@ -1,29 +1,38 @@
 import questionsData from "@/data/nen-shindan-questions.json";
 import { hexagonUnitVector, type Point } from "@/lib/hexagonGeometry";
-import type { NenSystem } from "@/lib/types";
+import type { FiveSystem, NenSystem, SpecializationPath } from "@/lib/types";
 
 const hexagonOrder = questionsData.scoring.hexagonOrder as NenSystem[];
 
+/** Radius (as a fraction of the hexagon's max radius) for a duality result's point. */
+const DUALITY_RADIUS = 0.5;
+
 /**
- * Projects a member's 6-axis scores into a single point inside the hexagon
- * via a weighted vector sum of the axis directions (a "type compass"
- * position), rather than drawing a full radar polygon per member. A member
- * who scores highly on one system lands near that vertex; a balanced
- * profile lands near the center.
+ * Places a member on the hexagon by which category their result falls
+ * into, not by the precise magnitude of their scores: a normal result
+ * sits exactly at its main system's vertex, a low-engagement
+ * specialization sits at the dead center, and a duality specialization
+ * sits partway out along its (higher-scoring) paired system's direction -
+ * distinct from both a normal vertex and the low-engagement center.
+ *
+ * Earlier this computed a continuous weighted-vector-sum position from
+ * the raw 5-system scores, but that made two opposite-pulling duality
+ * scores cancel out and land right on top of a low-engagement result -
+ * visually indistinguishable despite being different verdicts for a
+ * different reason. Recognizing "which layer a result belongs to" matters
+ * more than reproducing its exact numbers here.
  */
-export function computeMemberPosition(values: Record<NenSystem, number>): Point {
-  let sumX = 0;
-  let sumY = 0;
-  let sumWeight = 0;
-  hexagonOrder.forEach((system, i) => {
-    const weight = Math.max(0, values[system] ?? 0);
-    const { x, y } = hexagonUnitVector(i, hexagonOrder.length);
-    sumX += weight * x;
-    sumY += weight * y;
-    sumWeight += weight;
-  });
-  if (sumWeight === 0) return { x: 0, y: 0 };
-  return { x: sumX / sumWeight, y: sumY / sumWeight };
+export function computeMemberPosition(
+  mainSystem: NenSystem,
+  secondSystem: FiveSystem,
+  specializationPath: SpecializationPath
+): Point {
+  if (mainSystem === "specialization") {
+    if (specializationPath !== "duality") return { x: 0, y: 0 };
+    const dir = hexagonUnitVector(hexagonOrder.indexOf(secondSystem), hexagonOrder.length);
+    return { x: dir.x * DUALITY_RADIUS, y: dir.y * DUALITY_RADIUS };
+  }
+  return hexagonUnitVector(hexagonOrder.indexOf(mainSystem), hexagonOrder.length);
 }
 
 /**
