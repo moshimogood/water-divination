@@ -16,8 +16,8 @@ export type Scores = Record<FiveSystem, number>;
 /**
  * Which rule classified the result as specialization:
  * "lowEngagement" - flat and low scores, doesn't resonate with any system.
- * "duality" - a near-tied pair of hexagon-opposite systems, both genuinely
- * high (a paradoxical, two-sided profile).
+ * "duality" - a near-tied pair of hexagon-non-adjacent systems, both
+ * genuinely high (a paradoxical, two-sided profile).
  * null when the result is not specialization. See lib/scoring.ts.
  */
 export type SpecializationPath = "lowEngagement" | "duality" | null;

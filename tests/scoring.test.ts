@@ -182,8 +182,10 @@ describe("isDualitySpecialization", () => {
     expect(isDualitySpecialization(scores)).toBe(false);
   });
 
-  it("rejects a tied pair that isn't a real hexagon-opposite pair", () => {
-    // enhancement/transmutation are adjacent on the hexagon, not opposite.
+  it("rejects a tied pair that is directly adjacent on the hexagon", () => {
+    // enhancement/transmutation are neighbors, so transmutation's score is
+    // partly enhancement bleeding over (weight 0.3), not an independent
+    // second resonance - a near-tie there is an artifact, not a paradox.
     const scores: Scores = {
       enhancement: 75,
       transmutation: 72,
@@ -194,15 +196,31 @@ describe("isDualitySpecialization", () => {
     expect(isDualitySpecialization(scores)).toBe(false);
   });
 
-  it("never triggers for enhancement, which has no opposite among the five", () => {
+  it("recognizes a near-tied two-apart pair, not just true opposites", () => {
+    // enhancement/conjuration are two apart (neither adjacent nor directly
+    // opposite) - still a genuine independent double-resonance.
     const scores: Scores = {
-      enhancement: 70,
-      transmutation: 68,
+      enhancement: 72,
+      transmutation: 30,
       emission: 30,
-      conjuration: 30,
+      conjuration: 68,
       manipulation: 30,
     };
-    expect(isDualitySpecialization(scores)).toBe(false);
+    expect(isDualitySpecialization(scores)).toBe(true);
+  });
+
+  it("lets enhancement take part via a two-apart partner", () => {
+    // Enhancement has no direct opposite among the five (that slot is
+    // specialization itself), but it does have two-apart partners
+    // (conjuration, manipulation) it can pair with here.
+    const scores: Scores = {
+      enhancement: 70,
+      transmutation: 30,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 66,
+    };
+    expect(isDualitySpecialization(scores)).toBe(true);
   });
 
   it("rejects a tied pair that isn't genuinely high", () => {

@@ -4,13 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import questionsData from "@/data/nen-shindan-questions.json";
-import { HexagonChart } from "@/components/HexagonChart";
 import { ShareOnX } from "@/components/ShareOnX";
 import { decodeResult } from "@/lib/resultUrl";
-import { compatibilityTable } from "@/lib/compatibility";
 import { decodeTeam, encodeTeam, upsertMember, validateNickname, NICKNAME_MAX_LENGTH, TEAM_MAX_MEMBERS, TEAM_DATA_VERSION } from "@/lib/team";
 import { getOrCreateClientId } from "@/lib/clientId";
-import type { NenSystem } from "@/lib/types";
 
 const { systems } = questionsData;
 
@@ -61,11 +58,6 @@ export function ResultView({
     result.specializationPath === "duality" && dualityDescription
       ? dualityDescription
       : main.description;
-  const compat = compatibilityTable(result.mainSystem);
-  const chartValues: Record<NenSystem, number> = {
-    ...result.scores,
-    specialization: result.specializationScore,
-  };
 
   const teamIsFull =
     !!team && !existingMember && team.members.length >= TEAM_MAX_MEMBERS;
@@ -103,32 +95,6 @@ export function ResultView({
         <p className="mx-auto max-w-md leading-relaxed text-ink">{mainDescription}</p>
         <p className="text-sm font-bold text-ink-muted">
           第2系統：<span style={{ color: second.color }}>{second.name}</span>
-        </p>
-      </section>
-
-      <section className="flex justify-center rounded-2xl border-2 border-ink/10 bg-surface p-4 text-ink-muted shadow-sm">
-        <HexagonChart
-          series={[{ label: "あなた", color: main.color, values: chartValues }]}
-        />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="font-extrabold text-ink">系統ごとの相性</h2>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {Object.entries(compat).map(([system, percent]) => (
-            <li
-              key={system}
-              className="flex items-center justify-between rounded-xl border-2 border-ink/10 bg-surface px-4 py-2 shadow-sm"
-            >
-              <span className="font-bold" style={{ color: systems[system as NenSystem].color }}>
-                {systems[system as NenSystem].name}
-              </span>
-              <span className="font-extrabold text-ink">{percent}%</span>
-            </li>
-          ))}
-        </ul>
-        <p className="text-xs text-ink-muted">
-          ※ 相性は主系統からの六角形上の距離で決まる固定値です
         </p>
       </section>
 
