@@ -13,18 +13,24 @@ export type Answers = Record<string, number>;
 
 export type Scores = Record<FiveSystem, number>;
 
+/**
+ * Which rule classified the result as specialization:
+ * "lowEngagement" - flat and low scores, doesn't resonate with any system.
+ * "duality" - a near-tied pair of hexagon-opposite systems, both genuinely
+ * high (a paradoxical, two-sided profile).
+ * null when the result is not specialization. See lib/scoring.ts.
+ */
+export type SpecializationPath = "lowEngagement" | "duality" | null;
+
 export interface DiagnosisResult {
   /** Normalized 0-100 scores for the five directly-scored systems */
   scores: Scores;
   /** Derived 0-100 score for specialization (visualization only) */
   specializationScore: number;
-  /**
-   * True when the five scores are both flat (max-min range within
-   * scoring.specializationRangeThreshold) and low (max score within
-   * scoring.specializationMaxScoreThreshold) — see judgeSpecialization
-   * in lib/scoring.ts.
-   */
+  /** True when specializationPath is not null — see lib/scoring.ts. */
   isSpecialization: boolean;
+  /** Which rule triggered specialization, if any. */
+  specializationPath: SpecializationPath;
   mainSystem: NenSystem;
   secondSystem: FiveSystem;
 }

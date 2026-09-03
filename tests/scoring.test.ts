@@ -5,6 +5,8 @@ import {
   normalizeScores,
   computeResult,
   judgeSpecialization,
+  isDualitySpecialization,
+  specializationPathFor,
 } from "@/lib/scoring";
 import { FIVE_SYSTEMS, type Answers, type Scores } from "@/lib/types";
 
@@ -143,6 +145,133 @@ describe("specialization calibration", () => {
   it("classifies uniformly low (disagreeing) answers as specialization", () => {
     expect(computeResult(answersAll(1)).isSpecialization).toBe(true);
     expect(computeResult(answersAll(2)).isSpecialization).toBe(true);
+  });
+});
+
+describe("isDualitySpecialization", () => {
+  it("recognizes a near-tied opposite pair (transmutation <-> manipulation)", () => {
+    const scores: Scores = {
+      enhancement: 30,
+      transmutation: 75,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 70,
+    };
+    expect(isDualitySpecialization(scores)).toBe(true);
+  });
+
+  it("recognizes the other opposite pair (conjuration <-> emission)", () => {
+    const scores: Scores = {
+      enhancement: 30,
+      transmutation: 30,
+      emission: 72,
+      conjuration: 68,
+      manipulation: 30,
+    };
+    expect(isDualitySpecialization(scores)).toBe(true);
+  });
+
+  it("rejects a dominant system whose opposite-pair partner trails far behind", () => {
+    const scores: Scores = {
+      enhancement: 30,
+      transmutation: 95,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 40,
+    };
+    expect(isDualitySpecialization(scores)).toBe(false);
+  });
+
+  it("rejects a tied pair that isn't a real hexagon-opposite pair", () => {
+    // enhancement/transmutation are adjacent on the hexagon, not opposite.
+    const scores: Scores = {
+      enhancement: 75,
+      transmutation: 72,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 30,
+    };
+    expect(isDualitySpecialization(scores)).toBe(false);
+  });
+
+  it("never triggers for enhancement, which has no opposite among the five", () => {
+    const scores: Scores = {
+      enhancement: 70,
+      transmutation: 68,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 30,
+    };
+    expect(isDualitySpecialization(scores)).toBe(false);
+  });
+
+  it("rejects a tied pair that isn't genuinely high", () => {
+    const scores: Scores = {
+      enhancement: 30,
+      transmutation: 40,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 38,
+    };
+    expect(isDualitySpecialization(scores)).toBe(false);
+  });
+});
+
+describe("specializationPathFor", () => {
+  it("returns null for a normal single-lean profile", () => {
+    const scores: Scores = {
+      enhancement: 80,
+      transmutation: 40,
+      emission: 30,
+      conjuration: 20,
+      manipulation: 25,
+    };
+    expect(specializationPathFor(scores)).toBeNull();
+  });
+
+  it("returns 'lowEngagement' for flat and low scores", () => {
+    const scores: Scores = {
+      enhancement: 20,
+      transmutation: 22,
+      emission: 18,
+      conjuration: 21,
+      manipulation: 19,
+    };
+    expect(specializationPathFor(scores)).toBe("lowEngagement");
+  });
+
+  it("returns 'duality' for a near-tied opposite pair", () => {
+    const scores: Scores = {
+      enhancement: 30,
+      transmutation: 75,
+      emission: 30,
+      conjuration: 30,
+      manipulation: 70,
+    };
+    expect(specializationPathFor(scores)).toBe("duality");
+  });
+});
+
+describe("duality specialization via computeResult", () => {
+  it("classifies a near-tied transmutation/manipulation profile as duality specialization", () => {
+    const answers = answersBySystem({ transmutation: 5, manipulation: 5 }, 3);
+    const result = computeResult(answers);
+    expect(result.isSpecialization).toBe(true);
+    expect(result.mainSystem).toBe("specialization");
+    expect(result.specializationPath).toBe("duality");
+    expect(result.secondSystem).toBe("manipulation");
+  });
+
+  it("tags the low-engagement path distinctly from duality", () => {
+    const result = computeResult(answersAll(1));
+    expect(result.isSpecialization).toBe(true);
+    expect(result.specializationPath).toBe("lowEngagement");
+  });
+
+  it("tags a normal single-system result with a null path", () => {
+    const result = computeResult(answersBySystem({ enhancement: 5 }, 1));
+    expect(result.isSpecialization).toBe(false);
+    expect(result.specializationPath).toBeNull();
   });
 });
 

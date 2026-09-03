@@ -16,6 +16,8 @@
     "adjacentWeight": 0.3,
     "specializationRangeThreshold": 10,
     "specializationMaxScoreThreshold": 45,
+    "specializationDualityMinScore": 60,
+    "specializationDualityMaxGap": 10,
     "hexagonOrder": [
       "enhancement",
       "transmutation",
@@ -72,7 +74,8 @@
       "name": "特質系",
       "shortName": "特質",
       "color": "#db2777",
-      "description": "既存のどの型にも当てはまらない、唯一無二の存在。5つの系統では測りきれない独自の魅力とカリスマ性を持つ、稀有な特別枠。"
+      "description": "既存のどの型にも当てはまらない、唯一無二の存在。5つの系統では測りきれない独自の魅力とカリスマ性を持つ、稀有な特別枠。",
+      "dualityDescription": "相反する資質を同時に併せ持つ、矛盾を抱えた特別な存在。一つの型に収まらないからこそ生まれる独自の深みとカリスマ性が魅力。"
     }
   },
   "questions": [

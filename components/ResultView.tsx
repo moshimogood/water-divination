@@ -55,6 +55,12 @@ export function ResultView({
 
   const main = systems[result.mainSystem];
   const second = systems[result.secondSystem];
+  const dualityDescription =
+    "dualityDescription" in main ? (main as { dualityDescription?: string }).dualityDescription : undefined;
+  const mainDescription =
+    result.specializationPath === "duality" && dualityDescription
+      ? dualityDescription
+      : main.description;
   const compat = compatibilityTable(result.mainSystem);
   const chartValues: Record<NenSystem, number> = {
     ...result.scores,
@@ -94,7 +100,7 @@ export function ResultView({
         <h1 className="text-4xl font-extrabold" style={{ color: main.color }}>
           {main.name}
         </h1>
-        <p className="mx-auto max-w-md leading-relaxed text-ink">{main.description}</p>
+        <p className="mx-auto max-w-md leading-relaxed text-ink">{mainDescription}</p>
         <p className="text-sm font-bold text-ink-muted">
           第2系統：<span style={{ color: second.color }}>{second.name}</span>
         </p>
